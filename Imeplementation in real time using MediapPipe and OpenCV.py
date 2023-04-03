@@ -11,22 +11,22 @@ import numpy as np
 import time
 import pandas as pd
 
-model = load_model('AlphaTeam_Model')
+my_model = load_model('AlphaTeam_Model')
 
-mphands = mp.solutions.hands
-hands = mphands.Hands()
-mp_drawing = mp.solutions.drawing_utils
-cap = cv2.VideoCapture(0)
+media_hands = mp.solutions.hands
+hand_s = media_hands.Hands()
+media_p_drawing = mp.solutions.drawing_utils
+my_camera = cv2.VideoCapture(0)
 
-_, frame = cap.read()
+_, frame = my_camera.read()
 
 h, w, c = frame.shape
 
 img_counter = 0
-analysisframe = ''
-letterpred = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y']
+analysis_frames = ''
+alphabet_predictions = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y']
 while True:
-    _, frame = cap.read()
+    _, frame = my_camera.read()
 
     k = cv2.waitKey(1)
     if k%256 == 27:
@@ -35,19 +35,19 @@ while True:
         break
     elif k%256 == 32:
         # SPACE pressed
-        analysisframe = frame
-        showframe = analysisframe
-        cv2.imshow("Frame", showframe)
-        framergbanalysis = cv2.cvtColor(analysisframe, cv2.COLOR_BGR2RGB)
-        resultanalysis = hands.process(framergbanalysis)
-        hand_landmarksanalysis = resultanalysis.multi_hand_landmarks
-        if hand_landmarksanalysis:
-            for handLMsanalysis in hand_landmarksanalysis:
+        analysis_frames = frame
+        show_2frame = analysis_frames
+        cv2.imshow("Simra_Project", show_2frame)
+        frame_rgb_Analysis = cv2.cvtColor(analysis_frames, cv2.COLOR_BGR2RGB)
+        result_Analysis = hand_s.process(frame_rgb_Analysis)
+        my_hand_landmarks = result_Analysis.multi_hand_landmarks
+        if my_hand_landmarks:
+            for handLMs in my_hand_landmarks:
                 x_max = 0
                 y_max = 0
                 x_min = w
                 y_min = h
-                for lmanalysis in handLMsanalysis.landmark:
+                for lmanalysis in handLMs.landmark:
                     x, y = int(lmanalysis.x * w), int(lmanalysis.y * h)
                     if x > x_max:
                         x_max = x
@@ -62,9 +62,9 @@ while True:
                 x_min -= 20
                 x_max += 20 
 
-        analysisframe = cv2.cvtColor(analysisframe, cv2.COLOR_BGR2GRAY)
-        analysisframe = analysisframe[y_min:y_max, x_min:x_max]
-        analysisframe = cv2.resize(analysisframe,(28,28))
+        analysisframe = cv2.cvtColor(analysis_frames, cv2.COLOR_BGR2GRAY)
+        analysisframe = analysis_frames[y_min:y_max, x_min:x_max]
+        analysisframe = cv2.resize(analysis_frames,(28,28))
 
 
         nlist = []
@@ -83,9 +83,9 @@ while True:
         pixeldata = datan.values
         pixeldata = pixeldata / 255
         pixeldata = pixeldata.reshape(-1,28,28,1)
-        prediction = model.predict(pixeldata)
+        prediction = my_model.predict(pixeldata)
         predarray = np.array(prediction[0])
-        letter_prediction_dict = {letterpred[i]: predarray[i] for i in range(len(letterpred))}
+        letter_prediction_dict = {alphabet_predictions[i]: predarray[i] for i in range(len(alphabet_predictions))}
         predarrayordered = sorted(predarray, reverse=True)
         high1 = predarrayordered[0]
         high2 = predarrayordered[1]
@@ -103,10 +103,10 @@ while True:
         time.sleep(5)
 
     framergb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    result = hands.process(framergb)
-    hand_landmarks = result.multi_hand_landmarks
-    if hand_landmarks:
-        for handLMs in hand_landmarks:
+    result = hand_s.process(framergb)
+    my_hand_landmarks = result.multi_hand_landmarks
+    if my_hand_landmarks:
+        for handLMs in my_hand_landmarks:
             x_max = 0
             y_max = 0
             x_min = w
@@ -126,7 +126,7 @@ while True:
             x_min -= 20
             x_max += 20
             cv2.rectangle(frame, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
-    cv2.imshow("Frame", frame)
+    cv2.imshow("Simra's Frame", frame)
 
-cap.release()
+my_camera.release()
 cv2.destroyAllWindows()
